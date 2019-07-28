@@ -6,20 +6,24 @@ The library to connect and query secret data from vault engine for nodes, this l
 
 ## Run in local development
 1) Port forward
+```sh
 NAMESPACE="secrets"
 VAULTSERVICE="vault-cluster-01"
 kubectl -n ${NAMESPACE} get vault ${VAULTSERVICE} -o jsonpath='{.status.vaultStatus.active}' | xargs -0 -I {} kubectl -n ${NAMESPACE} port-forward {} 8200
+```
 
 2) Export required environment variables
+```sh
 export VAULT_URL="https://localhost"
 export VAULT_PORT="8200"
 export VAULT_ROLE_NAME="develop-environment-readonly-role"
 export VAULT_SECRET_MOUNTPOINT="/v1/secret/data/develop/apps/api-gateway-service"
 export APP_NAME="api-gateway-service"
 export SATOKEN_FILE="/tmp/SAToken"  # Define only on localhost, after deployed to kubenetes, automatic use /var/run/secrets/kubernetes.io/serviceaccount/token
-
+```
 3) Install connector as dependency
+```sh
 npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#<RELEASE_VERSION>
 npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#1.0.0
-
+```
 4) How to use, you can check it out in exmaple folder
