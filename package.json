@@ -1,0 +1,22 @@
+{
+  "name": "vault-connector-for-nodejs",
+  "version": "1.0.0",
+  "description": "to connect to vault managed service",
+  "main": "connector.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/lightnet-platform/vault-connector-for-nodejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/lightnet-platform/vault-connector-for-nodejs/issues"
+  },
+  "homepage": "https://gitlab.com/lightnet-platform/vault-connector-for-nodejs#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
