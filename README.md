@@ -1,6 +1,6 @@
 # k8s-vault-connector-for-nodejs
 
-# Important! : This libray is upported only vault engine which it integerated with kubernetes api.
+# Important! : This libray is supported only vault engine which it integerated with kubernetes api.
 
 The library to connect and query secret data from vault engine for nodes, this library only supports for vault K/V secret version 2+.
 
