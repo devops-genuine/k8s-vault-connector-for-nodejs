@@ -18,7 +18,6 @@ export VAULT_URL="https://localhost"
 export VAULT_PORT="8200"
 export VAULT_ROLE_NAME="develop-environment-readonly-role"
 export VAULT_SECRET_MOUNTPOINT="/v1/secret/data/develop/apps/api-gateway-service"
-export APP_NAME="api-gateway-service"
 export SATOKEN_FILE="/tmp/SAToken"  # Define only on localhost, after deployed to kubenetes, automatic use /var/run/secrets/kubernetes.io/serviceaccount/token
 ```
 3) Install connector as dependency
