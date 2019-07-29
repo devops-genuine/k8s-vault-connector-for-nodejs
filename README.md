@@ -25,4 +25,4 @@ export SATOKEN_FILE="/tmp/SAToken"  # Define only on localhost, after deployed t
 npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#<RELEASE_VERSION>
 npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#1.0.0
 ```
-4) How to use, you can check it out in exmaple folder
+4) How to use, you can check it out in example folder
