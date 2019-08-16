@@ -4,6 +4,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 process.env.VAULT_SKIP_VERIFY=true;
 var saToken = "";
 var saTokenFile = "";
+var vaultLoginPath = "";
 var secretData;
 
 exports.vaultConnector = async function(vaultDomainURL,vaultPort,vaultRoleName,vaultSecretMountpoint,callback) {
@@ -16,12 +17,12 @@ exports.vaultConnector = async function(vaultDomainURL,vaultPort,vaultRoleName,v
     var vaultURL = vaultDomainURL+":"+vaultPort;
     console.log("Vault Connector => Set Vault URL : "+ vaultURL);
 
-	if(typeof process.env.SATOKEN_FILE == 'undefined'){
+	if(typeof process.env.K8S_TOKEN_FILE == 'undefined'){
 		console.log("Vault Connector => Using Service Account Fille : /var/run/secrets/kubernetes.io/serviceaccount/token");
 	    saTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token";
 	}else{
-	    console.log("Vault Connector => Using Service Account Fille : "+process.env.SATOKEN_FILE);
-	    saTokenFile = process.env.SATOKEN_FILE;
+	    console.log("Vault Connector => Using Service Account Fille : "+process.env.K8S_TOKEN_FILE);
+	    saTokenFile = process.env.K8S_TOKEN_FILE;
 	}
 
     let k8sSAToken = await getSAToken(saTokenFile);
@@ -49,36 +50,42 @@ async function getSAToken(saTokenFile){
 async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName){
   return new Promise((resolve, reject) => {    
   	console.log("Vault Connector => Login to Vault API with Kubernetes Authentication Plugin");
-    var payload = {
-	  'jwt': k8sSAToken,
-	  'role': vaultRoleName
-	}
-	options = {
-		url: vaultURL+"/v1/auth/kubernetes/login",
-		method: 'POST',
-		followAllRedirects: true,
-		insecure: false,
-		body: JSON.stringify(payload),
-		headers:{
-		  'Content-Type': 'application/json'
+  	if(typeof process.env.VAULT_LOGIN_CONTEXT == 'undefined'){
+		console.log("Vault Login Context Path => /v1/auth/kubernetes/login");
+	    vaultLoginPath = "/v1/auth/kubernetes/login";
+	}else{
+		vaultLoginPath = process.env.VAULT_LOGIN_CONTEXT;
+		var payload = {
+		  'jwt': k8sSAToken,
+		  'role': vaultRoleName
 		}
-	}
-
-	request(options, function (error, response, body){
-		if (error) {
-			console.log("Vault Connector => Cannot authencate with vault api : "+ vaultURL );
-			reject('Failed to connect to vault engine, something wrong with connection');
-			console.log(error);
-		} else {
-			if(response.statusCode == "500"){
-				console.log("Vault Connector => Failed to Login : Service account token is unauthorized");
-				reject('Failed to login to vault api');
-			}else{
-				console.log("Vault Connector => Logged in successfully")
-				resolve(JSON.parse(body));
+		options = {
+			url: vaultURL+vaultLoginPath,
+			method: 'POST',
+			followAllRedirects: true,
+			insecure: false,
+			body: JSON.stringify(payload),
+			headers:{
+			  'Content-Type': 'application/json'
 			}
 		}
-	});
+
+		request(options, function (error, response, body){
+			if (error) {
+				console.log("Vault Connector => Cannot authencate with vault api : "+ vaultURL );
+				reject('Failed to connect to vault engine, something wrong with connection');
+				console.log(error);
+			} else {
+				if(response.statusCode == "500"){
+					console.log("Vault Connector => Failed to Login : Service account token is unauthorized");
+					reject('Failed to login to vault api');
+				}else{
+					console.log("Vault Connector => Logged in successfully")
+					resolve(JSON.parse(body));
+				}
+			}
+		});
+	}. // End IF Else
   }); // End Promise
 }
 
