@@ -18,7 +18,7 @@ exports.vaultConnector = async function(vaultDomainURL,vaultRoleName,vaultSecret
     console.log("Vault Connector => Set Vault URL : "+ vaultURL);
 
 	if(typeof process.env.K8S_TOKEN_FILE == 'undefined'){
-		console.log("Vault Connector => Using Service Account Fille : /var/run/secrets/kubernetes.io/serviceaccount/token");
+		console.log("Connector => Using Default Service Account Fille : /var/run/secrets/kubernetes.io/serviceaccount/token");
 	    saTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token";
 	}else{
 	    console.log("Vault Connector => Using Service Account Fille : "+process.env.K8S_TOKEN_FILE);
@@ -26,7 +26,7 @@ exports.vaultConnector = async function(vaultDomainURL,vaultRoleName,vaultSecret
 	}
 
     let k8sSAToken = await getSAToken(saTokenFile);
-    let vaultAcesssToken = await vaultLogin(vaultURL,k8sSAToken,vaultRoleName);    
+    let vaultAcesssToken = await vaultLogin(vaultURL,k8sSAToken,vaultRoleName,vaultLoginContext);    
     let vaultSecretData = await getSecrets(vaultURL,vaultAcesssToken.auth.client_token,vaultSecretMountpoint);
 
 	return callback(vaultSecretData);
@@ -47,14 +47,15 @@ async function getSAToken(saTokenFile){
   }); // End Promise
 }
 
-async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName){
+async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName,vaultLoginContext){
   return new Promise((resolve, reject) => {    
   	console.log("Vault Connector => Login to Vault API with Kubernetes Authentication Plugin");
   	if(typeof process.env.VAULT_LOGIN_CONTEXT == 'undefined'){
-		console.log("Vault Login Context Path => /v1/auth/kubernetes/login");
+		console.log("Vault Connector => Use Default Vault Login Context Path : /v1/auth/kubernetes/login");
 	    vaultLoginPath = "/v1/auth/kubernetes/login";
 	}else{
 		vaultLoginPath = vaultLoginContext;
+		console.log("Vault Connector => Vault Login Context Path : "+vaultLoginPath);
 		var payload = {
 		  'jwt': k8sSAToken,
 		  'role': vaultRoleName
@@ -79,7 +80,10 @@ async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName){
 				if(response.statusCode == "500"){
 					console.log("Vault Connector => Failed to Login : Service account token is unauthorized");
 					reject('Failed to login to vault api');
-				}else{
+				}else if(response.statusCode == "400"){
+					console.log("Vault Connector => Failed to login path : "+vaultLoginPath);
+					reject('Failed to login to vault api');
+			    }else{
 					console.log("Vault Connector => Logged in successfully")
 					resolve(JSON.parse(body));
 				}
