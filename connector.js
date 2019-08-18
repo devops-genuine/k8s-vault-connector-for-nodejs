@@ -7,14 +7,14 @@ var saTokenFile = "";
 var vaultLoginPath = "";
 var secretData;
 
-exports.vaultConnector = async function(vaultDomainURL,vaultPort,vaultRoleName,vaultSecretMountpoint,callback) {
+exports.vaultConnector = async function(vaultDomainURL,vaultRoleName,vaultSecretMountpoint,vaultLoginContext,k8sServiceAccountFile,callback) {
 
 	// Set Default Values
 	console.log("Vault Connector => Set target query secret mountpoint : "+ vaultSecretMountpoint);
 
 	console.log("Vault Connector => Set Authentication Role : "+ vaultRoleName);
 
-    var vaultURL = vaultDomainURL+":"+vaultPort;
+    var vaultURL = vaultDomainURL;
     console.log("Vault Connector => Set Vault URL : "+ vaultURL);
 
 	if(typeof process.env.K8S_TOKEN_FILE == 'undefined'){
@@ -22,7 +22,7 @@ exports.vaultConnector = async function(vaultDomainURL,vaultPort,vaultRoleName,v
 	    saTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token";
 	}else{
 	    console.log("Vault Connector => Using Service Account Fille : "+process.env.K8S_TOKEN_FILE);
-	    saTokenFile = process.env.K8S_TOKEN_FILE;
+	    saTokenFile = k8sServiceAccountFile;
 	}
 
     let k8sSAToken = await getSAToken(saTokenFile);
@@ -54,7 +54,7 @@ async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName){
 		console.log("Vault Login Context Path => /v1/auth/kubernetes/login");
 	    vaultLoginPath = "/v1/auth/kubernetes/login";
 	}else{
-		vaultLoginPath = process.env.VAULT_LOGIN_CONTEXT;
+		vaultLoginPath = vaultLoginContext;
 		var payload = {
 		  'jwt': k8sSAToken,
 		  'role': vaultRoleName
