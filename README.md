@@ -27,7 +27,7 @@ export K8S_TOKEN_FILE="/tmp/ServiceAccountToken" # Define only on localhost, aft
 ```
 4) Install connector as dependency
 ```sh
-npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#<RELEASE_VERSION>
-npm install github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#1.0.0
+npm install git://github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#<RELEASE_VERSION>
+npm install git://github.com/devops-genuine/k8s-vault-connector-for-nodejs.git#1.0.0
 ```
 5) How to use, you can check it out in example folder

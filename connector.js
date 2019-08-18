@@ -85,7 +85,7 @@ async function vaultLogin(vaultURL,k8sSAToken,vaultRoleName){
 				}
 			}
 		});
-	}. // End IF Else
+	} // End IF Else
   }); // End Promise
 }
 
